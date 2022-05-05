@@ -43,11 +43,18 @@ def get_skill():
     ]
     return jsonify(serializer), HTTPStatus.OK
 
-
+@jwt_required()
 def get_skill_id(id):
     skill = SkillModel.query.get(id)
+    user = get_jwt_identity()
     if skill == None:
         return {'msg': 'Non-existent skill'}, HTTPStatus.NOT_FOUND
+    if skill.user_id != user["id"]:
+        return {
+                'msg': 'It is possible to get only your skills'
+            }, HTTPStatus.BAD_REQUEST
+
+
     return jsonify(skill), HTTPStatus.OK
 
 
